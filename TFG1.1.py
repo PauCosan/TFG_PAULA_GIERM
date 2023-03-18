@@ -1,13 +1,15 @@
 import codecs
 import csv
-import re
-
-import unidecode
+import numpy as np
 import pandas as pd
-from nltk.corpus import stopwords
-from nltk.stem import SnowballStemmer
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import train_test_split
+from tensorflow import keras
+from keras.preprocessing.text import Tokenizer
+from sklearn.preprocessing import LabelEncoder
+
+from keras.models import Sequential
+from keras.layers import Dense, Dropout
+from keras.optimizers import Adam
 
 # Cargar los datos
 with codecs.open('1-classification-trainset.tsv', 'r', encoding='utf-8') as tsvfile:
@@ -21,36 +23,38 @@ tweets = pd.DataFrame(tweets[1:], columns=tweets[0])
 tweets_text = tweets['text'].values
 labels = tweets['label'].values
 
-stop_words = stopwords.words('spanish')
-stemmer = SnowballStemmer('spanish')
+# Convertir las etiquetas a un arreglo numpy
+labels = np.array(labels)
 
-def clean_tweet(tweet):
-    tweet = tweet.lower()  # Convertir minus
-    tweet = re.sub(r"http\S+", "", tweet)  # Eliminar URLs
-    tweet = re.sub(r"[^a-zA-Záéíóúñ]", " ", tweet)  # Eliminar caracteres no alfabéticos
-    tweet = tweet.split()  # Tokenizar
-    tweet = [word if word in ["siniestro","incidente","accidente","autopista","autovia"] else stemmer.stem(word) for word in tweet if
-             not word in stop_words]  # Stemming con SnowballStemmer
-    tweet = " ".join(tweet)  # Unir tokens
-    return tweet
+# Tokenizar los tweets y convertirlos en secuencias
+tokenizer = Tokenizer(num_words=5000)
+tokenizer.fit_on_texts(tweets_text)
+tweets_text = tokenizer.texts_to_sequences(tweets_text)
+tweets_text = keras.preprocessing.sequence.pad_sequences(tweets_text, maxlen=100)
 
+# Dividir los datos en conjunto de entrenamiento y conjunto de prueba
+X_train, X_test, y_train, y_test = train_test_split(tweets_text, labels, test_size=0.2)
 
-cleaned_tweets = [clean_tweet(tweet) for tweet in tweets_text]
-#print(cleaned_tweets)
-#print(labels)
+#Convertir los valores de eqtiquetas en numéricos
+le = LabelEncoder()
+le.fit(y_train)
+y_train = le.transform(y_train)
+y_test = le.transform(y_test)
 
+# Construir el modelo
+model = Sequential()
+model.add(Dense(64, input_dim=tweets_text.shape[1], activation='relu'))
+model.add(Dropout(0.5))
+model.add(Dense(32, activation='relu'))
+model.add(Dropout(0.5))
+model.add(Dense(1, activation='sigmoid'))
 
-# Crear matriz TF-IDF
-tfidf_vectorizer = TfidfVectorizer()
-tfidf_matrix = tfidf_vectorizer.fit_transform(cleaned_tweets)
+# Compilar el modelo
+model.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=0.001), metrics=['accuracy'])
 
-# Entrenar el modelo Naive Bayes
-nb_model = MultinomialNB().fit(tfidf_matrix, labels)
+# Entrenar el modelo
+model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
 
-# Clasificar un tweet aleatorio
-tweet = "Hoy hubo un accidente en la autopista"
-tweet_cleaned = clean_tweet(tweet)
-print(tweet_cleaned)
-tweet_tfidf = tfidf_vectorizer.transform([tweet_cleaned])
-prediction = nb_model.predict(tweet_tfidf)
-print(prediction)
+# Evaluar el modelo en el conjunto de prueba
+score = model.evaluate(X_test, y_test, verbose=0)
+print("Accuracy: %.2f%%" % (score[1]*100))
