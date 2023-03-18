@@ -1,2 +1,2 @@
-import nltk
-nltk.download('stopwords')
+import keras
+print(keras.__version__)
