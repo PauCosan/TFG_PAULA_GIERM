@@ -8,7 +8,7 @@ from keras.preprocessing.text import Tokenizer
 from sklearn.preprocessing import LabelEncoder
 
 from keras.models import Sequential
-from keras.layers import Dense, Dropout
+from keras.layers import Dense, Dropout, Embedding, Flatten
 from keras.optimizers import Adam
 
 # Cargar los datos
@@ -41,9 +41,14 @@ le.fit(y_train)
 y_train = le.transform(y_train)
 y_test = le.transform(y_test)
 
-# Construir el modelo
+# Construir el modelo con una capa de Embedding
+embedding_dim = 100
+vocab_size = len(tokenizer.word_index) + 1
+
 model = Sequential()
-model.add(Dense(64, input_dim=tweets_text.shape[1], activation='relu'))
+model.add(Embedding(vocab_size, embedding_dim, input_length=100))
+model.add(Flatten())
+model.add(Dense(64, activation='relu'))
 model.add(Dropout(0.5))
 model.add(Dense(32, activation='relu'))
 model.add(Dropout(0.5))
