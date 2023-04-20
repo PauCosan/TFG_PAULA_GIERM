@@ -1,3 +1,4 @@
+
 import codecs
 import csv
 import numpy as np
@@ -6,7 +7,7 @@ from tensorflow import keras
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from keras.preprocessing.text import Tokenizer
-from keras.layers import Embedding, SimpleRNN, Dense, Dropout, LSTM
+from keras.layers import Embedding, Conv1D, MaxPooling1D, Flatten, Dense, Dropout
 from keras.models import Sequential
 from keras.optimizers import Adam
 
@@ -40,26 +41,24 @@ le.fit(y_train)
 y_train = le.transform(y_train)
 y_test = le.transform(y_test)
 
-# Crear la arquitectura del modelo RNN
+# Crear la arquitectura del modelo CNN
 embedding_dim = 100
 vocab_size = len(tokenizer.word_index) + 1
 model = Sequential()
 model.add(Embedding(vocab_size, embedding_dim, input_length=100))
-model.add(LSTM(128, return_sequences=True))
-model.add(Dropout(0.5))
-model.add(LSTM(64))
-model.add(Dropout(0.5))
+model.add(Conv1D(64, 5, activation='relu'))
+model.add(MaxPooling1D(pool_size=4))
+model.add(Flatten())
 model.add(Dense(64, activation='relu'))
 model.add(Dropout(0.5))
 model.add(Dense(1, activation='sigmoid'))
 
 
 # Compilar el modelo
-optimizer = Adam(learning_rate=0.001)
-model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+model.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=0.001), metrics=['accuracy'])
 
 # Entrenar el modelo
-model.fit(X_train, y_train, epochs=10, batch_size=64)
+model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
 
 # Evaluar el modelo en el conjunto de prueba
 score = model.evaluate(X_test, y_test, verbose=0)

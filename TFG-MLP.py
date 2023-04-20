@@ -2,12 +2,13 @@ import codecs
 import csv
 import numpy as np
 import pandas as pd
-from tensorflow import keras
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
+from tensorflow import keras
 from keras.preprocessing.text import Tokenizer
-from keras.layers import Embedding, SimpleRNN, Dense, Dropout, LSTM
+from sklearn.preprocessing import LabelEncoder
+
 from keras.models import Sequential
+from keras.layers import Dense, Dropout
 from keras.optimizers import Adam
 
 # Cargar los datos
@@ -40,26 +41,19 @@ le.fit(y_train)
 y_train = le.transform(y_train)
 y_test = le.transform(y_test)
 
-# Crear la arquitectura del modelo RNN
-embedding_dim = 100
-vocab_size = len(tokenizer.word_index) + 1
+# Construir el modelo
 model = Sequential()
-model.add(Embedding(vocab_size, embedding_dim, input_length=100))
-model.add(LSTM(128, return_sequences=True))
+model.add(Dense(64, input_dim=tweets_text.shape[1], activation='relu'))
 model.add(Dropout(0.5))
-model.add(LSTM(64))
-model.add(Dropout(0.5))
-model.add(Dense(64, activation='relu'))
+model.add(Dense(32, activation='relu'))
 model.add(Dropout(0.5))
 model.add(Dense(1, activation='sigmoid'))
 
-
 # Compilar el modelo
-optimizer = Adam(learning_rate=0.001)
-model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+model.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=0.001), metrics=['accuracy'])
 
 # Entrenar el modelo
-model.fit(X_train, y_train, epochs=10, batch_size=64)
+model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
 
 # Evaluar el modelo en el conjunto de prueba
 score = model.evaluate(X_test, y_test, verbose=0)

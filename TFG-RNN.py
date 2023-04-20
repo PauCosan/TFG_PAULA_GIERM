@@ -6,7 +6,7 @@ from tensorflow import keras
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from keras.preprocessing.text import Tokenizer
-from keras.layers import Embedding, SimpleRNN, Dense, Dropout, LSTM
+from keras.layers import Embedding, SimpleRNN, Dense, Dropout
 from keras.models import Sequential
 from keras.optimizers import Adam
 
@@ -43,16 +43,12 @@ y_test = le.transform(y_test)
 # Crear la arquitectura del modelo RNN
 embedding_dim = 100
 vocab_size = len(tokenizer.word_index) + 1
+
 model = Sequential()
 model.add(Embedding(vocab_size, embedding_dim, input_length=100))
-model.add(LSTM(128, return_sequences=True))
-model.add(Dropout(0.5))
-model.add(LSTM(64))
-model.add(Dropout(0.5))
-model.add(Dense(64, activation='relu'))
+model.add(SimpleRNN(64))
 model.add(Dropout(0.5))
 model.add(Dense(1, activation='sigmoid'))
-
 
 # Compilar el modelo
 optimizer = Adam(learning_rate=0.001)
