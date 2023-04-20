@@ -46,16 +46,16 @@ vocab_size = len(tokenizer.word_index) + 1
 
 model = Sequential()
 model.add(Embedding(vocab_size, embedding_dim, input_length=100))
-model.add(SimpleRNN(64))
+model.add(SimpleRNN(64, return_sequences=True))
+model.add(SimpleRNN(32))
 model.add(Dropout(0.5))
 model.add(Dense(1, activation='sigmoid'))
 
 # Compilar el modelo
-optimizer = Adam(learning_rate=0.001)
-model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+model.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=0.001), metrics=['accuracy'])
 
 # Entrenar el modelo
-model.fit(X_train, y_train, epochs=10, batch_size=64)
+model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
 
 # Evaluar el modelo en el conjunto de prueba
 score = model.evaluate(X_test, y_test, verbose=0)
