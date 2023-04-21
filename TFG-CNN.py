@@ -72,3 +72,20 @@ test_loss, test_acc = model.evaluate(X_test, y_test)
 print("Entrenamiento - Loss: {:.2f} - Accuracy: {:.2f}%".format(train_loss, train_acc * 100))
 print("Validación - Loss: {:.2f} - Accuracy: {:.2f}%".format(val_loss, val_acc * 100))
 print("Prueba - Loss: {:.2f} - Accuracy: {:.2f}%".format(test_loss, test_acc * 100))
+
+"""
+#COMPROBACIÓN CON TWEET
+# Preprocesar el tweet
+tweet = "Incidente vial leve entre dos motoristas"
+tweet = tokenizer.texts_to_sequences([tweet])
+tweet = keras.preprocessing.sequence.pad_sequences(tweet, maxlen=100)
+
+# Hacer la predicción
+prediction = model.predict(tweet)
+
+# Comparar las probabilidades y tomar una decisión en función del umbral
+if prediction[0][0] >= 0.5:
+    print("El tweet es un accidente de tráfico")
+else:
+    print("El tweet no es un accidente de tráfico")
+"""
