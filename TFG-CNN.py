@@ -50,13 +50,12 @@ embedding_dim = 100
 vocab_size = len(tokenizer.word_index) + 1
 model = Sequential()
 model.add(Embedding(vocab_size, embedding_dim, input_length=100))
-model.add(Conv1D(64, 5, activation='relu'))
+model.add(Conv1D(128, 5, activation='relu'))
 model.add(MaxPooling1D(pool_size=4))
 model.add(Flatten())
 model.add(Dense(64, activation='relu'))
 model.add(Dropout(0.5))
 model.add(Dense(1, activation='sigmoid'))
-
 
 # Compilar el modelo
 model.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=0.001), metrics=['accuracy'])
