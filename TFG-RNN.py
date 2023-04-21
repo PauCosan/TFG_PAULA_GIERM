@@ -34,10 +34,14 @@ tweets_text = keras.preprocessing.sequence.pad_sequences(tweets_text, maxlen=100
 # Dividir los datos en conjunto de entrenamiento y conjunto de prueba
 X_train, X_test, y_train, y_test = train_test_split(tweets_text, labels, test_size=0.2)
 
+# Dividir el conjunto de train en train y validation
+X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
+
 #Convertir los valores de eqtiquetas en numéricos
 le = LabelEncoder()
 le.fit(y_train)
 y_train = le.transform(y_train)
+y_val = le.transform(y_val)
 y_test = le.transform(y_test)
 
 # Crear la arquitectura del modelo RNN
@@ -55,8 +59,14 @@ model.add(Dense(1, activation='sigmoid'))
 model.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=0.001), metrics=['accuracy'])
 
 # Entrenar el modelo
-model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
+model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_val, y_val))
 
-# Evaluar el modelo en el conjunto de prueba
-score = model.evaluate(X_test, y_test, verbose=0)
-print("Accuracy: %.2f%%" % (score[1]*100))
+# Evaluar el modelo en los conjuntos de entrenamiento, validación y prueba
+train_loss, train_acc = model.evaluate(X_train, y_train)
+val_loss, val_acc = model.evaluate(X_val, y_val)
+test_loss, test_acc = model.evaluate(X_test, y_test)
+
+# Imprimir los resultados
+print("Entrenamiento - Loss: {:.2f} - Accuracy: {:.2f}%".format(train_loss, train_acc * 100))
+print("Validación - Loss: {:.2f} - Accuracy: {:.2f}%".format(val_loss, val_acc * 100))
+print("Prueba - Loss: {:.2f} - Accuracy: {:.2f}%".format(test_loss, test_acc * 100))
