@@ -20,7 +20,7 @@ with codecs.open('1-classification-trainset.tsv', 'r', encoding='utf-8') as tsvf
 tweets = pd.DataFrame(tweets[1:], columns=tweets[0])
 
 # Obtener tweets y etiquetas
-tweets_text = tweets['text'].values
+all_tweets_text = tweets['text'].values
 labels = tweets['label'].values
 
 # Convertir las etiquetas a un arreglo numpy
@@ -28,8 +28,8 @@ labels = np.array(labels)
 
 # Tokenizar los tweets y convertirlos en secuencias
 tokenizer = Tokenizer(num_words=5000)
-tokenizer.fit_on_texts(tweets_text)
-tweets_text = tokenizer.texts_to_sequences(tweets_text)
+tokenizer.fit_on_texts(all_tweets_text)
+tweets_text = tokenizer.texts_to_sequences(all_tweets_text)
 tweets_text = keras.preprocessing.sequence.pad_sequences(tweets_text, maxlen=100)
 
 # Dividir los datos en conjunto de entrenamiento y conjunto de prueba
@@ -38,7 +38,7 @@ X_train, X_test, y_train, y_test = train_test_split(tweets_text, labels, test_si
 # Dividir el conjunto de train en train y validation
 X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
 
-#Convertir los valores de eqtiquetas en numéricos
+#Convertir los valores de etiquetas en numéricos
 le = LabelEncoder()
 le.fit(y_train)
 y_train = le.transform(y_train)
@@ -74,19 +74,25 @@ print("Entrenamiento - Loss: {:.2f} - Accuracy: {:.2f}%".format(train_loss, trai
 print("Validación - Loss: {:.2f} - Accuracy: {:.2f}%".format(val_loss, val_acc * 100))
 print("Prueba - Loss: {:.2f} - Accuracy: {:.2f}%".format(test_loss, test_acc * 100))
 
+model.save('model_MLP.h5')
+
 """
-#COMPROBACIÓN CON TWEET
 # Preprocesar el tweet
-tweet = "Accidente de coche en la autopista dirección a miami"
+tokenizer = Tokenizer(num_words=5000)
+tweet = "accidente de tráfico grave en la carretera entre dos coches"
 tweet = tokenizer.texts_to_sequences([tweet])
 tweet = keras.preprocessing.sequence.pad_sequences(tweet, maxlen=100)
 
 # Hacer la predicción
 prediction = model.predict(tweet)
+print(prediction)
 
 # Comparar las probabilidades y tomar una decisión en función del umbral
-if prediction[0][0] >= 0.5:
+if prediction[0][0] >= 0.0001:
     print("El tweet es un accidente de tráfico")
 else:
     print("El tweet no es un accidente de tráfico")
 """
+
+
+
