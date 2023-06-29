@@ -8,7 +8,7 @@ from keras.preprocessing.text import Tokenizer
 from sklearn.preprocessing import LabelEncoder
 from transformers import AutoTokenizer
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Embedding
+from keras.layers import Dense, Dropout, Embedding, Flatten
 from keras.optimizers import Adam
 
 # Cargar los datos para train
@@ -45,15 +45,19 @@ seq_test = tokenizer.texts_to_sequences(all_tweets_text_test)
 seq_train = keras.preprocessing.sequence.pad_sequences(seq_train, maxlen=100) #rellena secuencia con ceros para que
 seq_test = keras.preprocessing.sequence.pad_sequences(seq_test, maxlen=100)#todas tengan igual longitud
 
+print(seq_test[1])
+
+
+
 # Cargar el tokenizer pre-entrenado de BERT
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 #Guardar el tokenizer
 tokenizer.save_pretrained('Tokenizer.h5')
 
-# Dividir los datos en conjunto de entrenamiento y conjunto de prueba
-X_train, X_test, y_train, y_test = train_test_split(seq_train, labels, test_size=0.2)
-X_val = seq_test
-y_val = labels_test
+# Dividir los datos en conjunto de entrenamiento y conjunto de validacion
+X_train, X_val, y_train, y_val = train_test_split(seq_train, labels, test_size=0.2)
+X_test = seq_test
+y_test = labels_test
 
 #Convertir los valores de etiquetas en numéricos. Al ser etiquetas categóricas se deben codificar numéricamente
 #para que el modelo pueda procesarlas. Se ha usado codificación ordinal
@@ -63,9 +67,25 @@ y_train = le.transform(y_train)
 y_val = le.transform(y_val)
 y_test = le.transform(y_test)
 
+print(y_train.shape)
+
+
 # Construir el modelo
 model = Sequential()
 model.add(Dense(128, input_dim=seq_train.shape[1], activation='relu'))
+model.add(Dropout(0.5))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.5))
+model.add(Dense(1, activation='sigmoid'))
+
+# Construir el modelo
+vocab_size = len(tokenizer)
+embedding_dim = 100
+max_length = 100
+model = Sequential()
+model.add(Embedding(input_dim=vocab_size, output_dim=embedding_dim, input_length=max_length))
+model.add(Flatten())
+#model.add(Dense(128, activation='relu'))
 model.add(Dropout(0.5))
 model.add(Dense(64, activation='relu'))
 model.add(Dropout(0.5))
@@ -87,4 +107,4 @@ test_loss, test_acc = model.evaluate(X_test, y_test)
 
 print("Prueba - Loss: {:.2f} - Accuracy: {:.2f}%".format(test_loss, test_acc * 100))
 
-model.save('ModeloMLPv5.h5')
+model.save('ModeloMLPv7.h5')
