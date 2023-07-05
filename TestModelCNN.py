@@ -3,16 +3,17 @@ from tensorflow import keras
 from keras.models import load_model
 
 try:
-    modelo_prueba = load_model('ModeloDePruebaCoche2.h5')
+    modelo_prueba = load_model('NeuralNetworkCNN.h5')
 except OSError:
     print("Error: No se pudo cargar el modelo MLP")
     exit()
+print(modelo_prueba.summary())
 
-random_tweet ="me encantó la pelicula que vimos anoche "
+random_tweet ="el gato se ha cruzado provocando un choque entre una bici y una moto"
 print(random_tweet)
 
 # Cargar el tokenizer desde el archivo
-with open('tokenizerP2.pkl', 'rb') as file:
+with open('tokenizerNeuralNetworkCNN.pkl', 'rb') as file:
     tokenizer = pickle.load(file)
 
 
