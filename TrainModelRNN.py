@@ -33,6 +33,7 @@ all_tweets_text_test = tweets_test['text'].values
 labels_test = tweets_test['label'].values
 print(all_tweets_text_test[1])
 print(labels_test[1])
+
 # Convertir las etiquetas a un arreglo numpy-Permite realizar cálculos matemáticos y estadísticos de manera más
 # eficiente
 labels = np.array(labels)
@@ -77,7 +78,7 @@ seq_test = keras.preprocessing.sequence.pad_sequences(seq_test, maxlen=100)#toda
 print(seq_test[1])
 """
 # Guardar el tokenizer en un archivo
-with open('tokenizerP2.pkl', 'wb') as file:
+with open('tokenizer.pkl', 'wb') as file:
     pickle.dump(tokenizer, file)
 """
 # Dividir los datos en conjunto de entrenamiento y conjunto de validacion
@@ -113,6 +114,6 @@ model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=3, batch_size
 scores = model.evaluate(X_test, y_test, verbose=0)
 print("Accuracy: %.2f%%" % (scores[1]*100))
 
-model.save('ModeloDePruebaCocheValidat.h5')
+model.save('ModelNeuralNetworkRNN.h5')
 
 

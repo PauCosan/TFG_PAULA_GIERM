@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from keras.preprocessing.text import Tokenizer
 from tensorflow import keras
-from keras.layers import Dense, Embedding, Conv1D, GlobalMaxPooling1D
+from keras.layers import Dense, Dropout
 from keras.models import Sequential
 
 # Cargar los datos para train
@@ -96,11 +96,11 @@ y_test = le.transform(y_test)
 top_words = 5000
 max_review_length = 100
 
-# create the model RNN
+# create the model Feedforward
 embedding_vecor_length = 32
 model = Sequential()
-model.add(Dense(64, activation='relu', input_shape=(max_review_length,)))  # Capa de entrada
-model.add(Dense(32, activation='relu'))  # Capa oculta
+model.add(Dense(128, activation='relu', input_shape=(max_review_length,)))  # Capa de entrada
+model.add(Dense(64, activation='relu'))  # Capa oculta
 model.add(Dense(1, activation='sigmoid'))  # Capa de salida
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 print(model.summary())
@@ -108,13 +108,13 @@ print(model.summary())
 
 
 # Train the model
-#model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=3, batch_size=64)
-model.fit(X_train, y_train, epochs=3, batch_size=64) #-> sin añadir los datos de validacion
+model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=3, batch_size=64)
+#model.fit(X_train, y_train, epochs=3, batch_size=64) #-> sin añadir los datos de validacion
 
 # Final evaluation of the model
 scores = model.evaluate(X_test, y_test, verbose=0)
 print("Accuracy: %.2f%%" % (scores[1]*100))
 
-model.save('NeuralNetworkF.h5')
+model.save('ModelNeuralNetworkF.h5')
 
 

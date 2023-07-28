@@ -75,11 +75,11 @@ seq_train = keras.preprocessing.sequence.pad_sequences(seq_train, maxlen=100) #r
 seq_test = keras.preprocessing.sequence.pad_sequences(seq_test, maxlen=100)#todas tengan igual longitud
 
 print(seq_test[1])
-
+"""
 # Guardar el tokenizer en un archivo
 with open('tokenizerNeuralNetworkCNN.pkl', 'wb') as file:
     pickle.dump(tokenizer, file)
-
+"""
 # Dividir los datos en conjunto de entrenamiento y conjunto de validacion
 X_train, X_val, y_train, y_val = train_test_split(seq_train, labels, test_size=0.2)
 X_test = seq_test
@@ -108,13 +108,13 @@ print(model.summary())
 
 
 # Train the model
-#model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=3, batch_size=64)
-model.fit(X_train, y_train, epochs=3, batch_size=64) #-> sin añadir los datos de validacion
+model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=3, batch_size=64)
+#model.fit(X_train, y_train, epochs=3, batch_size=64) #-> sin añadir los datos de validacion
 
 # Final evaluation of the model
 scores = model.evaluate(X_test, y_test, verbose=0)
 print("Accuracy: %.2f%%" % (scores[1]*100))
 
-model.save('NeuralNetworkCNN.h5')
+model.save('ModelNeuralNetworkCNN.h5')
 
 
