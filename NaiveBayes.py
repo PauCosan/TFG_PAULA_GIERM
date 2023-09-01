@@ -2,7 +2,6 @@ import codecs
 import csv
 import re
 
-import unidecode
 import pandas as pd
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
